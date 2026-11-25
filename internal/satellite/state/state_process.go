@@ -611,6 +611,11 @@ func (f *FetchAndReplicateStateProcess) reconcileRemoteConfig(
 
 		remoteConfig.StateConfig = f.cm.GetStateConfig()
 		remoteConfig.AppConfig.HarborRegistryURL = f.cm.GetHarborRegistryURL()
+		config.RetainProcessLocalSettings(&remoteConfig, config.AppConfig{
+			BringOwnRegistry:         f.cm.GetOwnRegistry(),
+			LocalRegistryCredentials: f.cm.GetRemoteRegistryCredentials(),
+			DirectDelivery:           f.cm.GetDirectDeliveryConfig(),
+		}, useUnsecure)
 		localPeers := f.cm.GetPeerDistributionConfig()
 		config.ApplyRetainedPeerTransport(&remoteConfig, localPeers, useUnsecure)
 		validatedRemoteConfig, warnings, err := config.ValidateAndEnforceDefaults(&remoteConfig, f.cm.DefaultGroundControlURL)

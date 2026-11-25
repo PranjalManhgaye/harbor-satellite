@@ -357,6 +357,25 @@ func peerHasCredentials(peer PeerDescriptor) bool {
 	return peer.Username != "" || peer.Password != ""
 }
 
+// RetainProcessLocalSettings keeps settings that come from this satellite's
+// process, not from the Ground Control config artifact. A fetched config that
+// omits them would otherwise replace the on-disk config and drop them.
+func RetainProcessLocalSettings(remote *Config, local AppConfig, processUseUnsecure bool) {
+	if remote == nil {
+		return
+	}
+	if local.BringOwnRegistry {
+		remote.AppConfig.BringOwnRegistry = true
+		remote.AppConfig.LocalRegistryCredentials = local.LocalRegistryCredentials
+	}
+	if local.DirectDelivery.Enabled {
+		remote.AppConfig.DirectDelivery = local.DirectDelivery
+	}
+	if processUseUnsecure {
+		remote.AppConfig.UseUnsecure = true
+	}
+}
+
 // ApplyRetainedPeerTransport keeps the local peer block when the fetched config
 // omitted it. When a kept or backfilled peer uses HTTP and this process is
 // already insecure, use_unsecure is set so validation accepts that peer. A
